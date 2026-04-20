@@ -1,0 +1,454 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		A00000000000000000000030 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000010 /* AppDelegate.swift */; };
+		A00000000000000000000031 /* KefSleepSyncApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000011 /* KefSleepSyncApp.swift */; };
+		A00000000000000000000032 /* DomainModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000012 /* DomainModels.swift */; };
+		A00000000000000000000033 /* NSDKValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000013 /* NSDKValue.swift */; };
+		A00000000000000000000034 /* SpeakerDiscoveryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000014 /* SpeakerDiscoveryService.swift */; };
+		A00000000000000000000035 /* KefAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000015 /* KefAPIClient.swift */; };
+		A00000000000000000000036 /* LoginItemService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000016 /* LoginItemService.swift */; };
+		A00000000000000000000037 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000017 /* AppModel.swift */; };
+		A00000000000000000000038 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000018 /* AppLogger.swift */; };
+		A00000000000000000000039 /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000019 /* MenuBarContentView.swift */; };
+		A0000000000000000000003A /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001A /* SettingsView.swift */; };
+		A0000000000000000000003B /* NSDKValueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001B /* NSDKValueTests.swift */; };
+		A0000000000000000000003C /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001E /* XCTest.framework */; };
+		A0000000000000000000003D /* KefRequestSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001F /* KefRequestSecurity.swift */; };
+		A0000000000000000000003E /* KefRequestSecurityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000020 /* KefRequestSecurityTests.swift */; };
+		A0000000000000000000003F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000021 /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A00000000000000000000070 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A00000000000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A00000000000000000000050;
+			remoteInfo = KefSleepSync;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		A00000000000000000000010 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		A00000000000000000000011 /* KefSleepSyncApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KefSleepSyncApp.swift; sourceTree = "<group>"; };
+		A00000000000000000000012 /* DomainModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DomainModels.swift; sourceTree = "<group>"; };
+		A00000000000000000000013 /* NSDKValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSDKValue.swift; sourceTree = "<group>"; };
+		A00000000000000000000014 /* SpeakerDiscoveryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeakerDiscoveryService.swift; sourceTree = "<group>"; };
+		A00000000000000000000015 /* KefAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KefAPIClient.swift; sourceTree = "<group>"; };
+		A00000000000000000000016 /* LoginItemService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginItemService.swift; sourceTree = "<group>"; };
+		A00000000000000000000017 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		A00000000000000000000018 /* AppLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLogger.swift; sourceTree = "<group>"; };
+		A00000000000000000000019 /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
+		A0000000000000000000001A /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		A0000000000000000000001B /* NSDKValueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSDKValueTests.swift; sourceTree = "<group>"; };
+		A0000000000000000000001C /* KefSleepSync.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KefSleepSync.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A0000000000000000000001D /* KefSleepSyncTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KefSleepSyncTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A0000000000000000000001E /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
+		A0000000000000000000001F /* KefRequestSecurity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KefRequestSecurity.swift; sourceTree = "<group>"; };
+		A00000000000000000000020 /* KefRequestSecurityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KefRequestSecurityTests.swift; sourceTree = "<group>"; };
+		A00000000000000000000021 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A00000000000000000000041 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A00000000000000000000044 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A0000000000000000000003C /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		A00000000000000000000002 = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000004 /* App */,
+				A00000000000000000000005 /* Models */,
+				A00000000000000000000006 /* Services */,
+				A00000000000000000000007 /* Stores */,
+				A00000000000000000000008 /* Support */,
+				A00000000000000000000009 /* Views */,
+				A0000000000000000000000B /* Resources */,
+				A0000000000000000000000A /* KefSleepSyncTests */,
+				A00000000000000000000003 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		A00000000000000000000003 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A0000000000000000000001C /* KefSleepSync.app */,
+				A0000000000000000000001D /* KefSleepSyncTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000004 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000010 /* AppDelegate.swift */,
+				A00000000000000000000011 /* KefSleepSyncApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000005 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000012 /* DomainModels.swift */,
+				A00000000000000000000013 /* NSDKValue.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000006 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000014 /* SpeakerDiscoveryService.swift */,
+				A00000000000000000000015 /* KefAPIClient.swift */,
+				A0000000000000000000001F /* KefRequestSecurity.swift */,
+				A00000000000000000000016 /* LoginItemService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000007 /* Stores */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000017 /* AppModel.swift */,
+			);
+			path = Stores;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000008 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000018 /* AppLogger.swift */,
+			);
+			path = Support;
+			sourceTree = "<group>";
+		};
+		A00000000000000000000009 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000019 /* MenuBarContentView.swift */,
+				A0000000000000000000001A /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		A0000000000000000000000A /* KefSleepSyncTests */ = {
+			isa = PBXGroup;
+			children = (
+				A0000000000000000000001B /* NSDKValueTests.swift */,
+				A00000000000000000000020 /* KefRequestSecurityTests.swift */,
+			);
+			path = Tests/KefSleepSyncTests;
+			sourceTree = "<group>";
+		};
+		A0000000000000000000000B /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				A00000000000000000000021 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		A00000000000000000000050 /* KefSleepSync */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A00000000000000000000066 /* Build configuration list for PBXNativeTarget "KefSleepSync" */;
+			buildPhases = (
+				A00000000000000000000040 /* Sources */,
+				A00000000000000000000041 /* Frameworks */,
+				A00000000000000000000042 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = KefSleepSync;
+			productName = KefSleepSync;
+			productReference = A0000000000000000000001C /* KefSleepSync.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A00000000000000000000051 /* KefSleepSyncTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A00000000000000000000067 /* Build configuration list for PBXNativeTarget "KefSleepSyncTests" */;
+			buildPhases = (
+				A00000000000000000000043 /* Sources */,
+				A00000000000000000000044 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A00000000000000000000071 /* PBXTargetDependency */,
+			);
+			name = KefSleepSyncTests;
+			productName = KefSleepSyncTests;
+			productReference = A0000000000000000000001D /* KefSleepSyncTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		A00000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					A00000000000000000000050 = {
+						CreatedOnToolsVersion = 17.0;
+					};
+					A00000000000000000000051 = {
+						CreatedOnToolsVersion = 17.0;
+						TestTargetID = A00000000000000000000050;
+					};
+				};
+			};
+			buildConfigurationList = A00000000000000000000068 /* Build configuration list for PBXProject "KefSleepSync" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = A00000000000000000000002;
+			productRefGroup = A00000000000000000000003 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				A00000000000000000000050 /* KefSleepSync */,
+				A00000000000000000000051 /* KefSleepSyncTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		A00000000000000000000042 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A0000000000000000000003F /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A00000000000000000000040 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A00000000000000000000030 /* AppDelegate.swift in Sources */,
+				A00000000000000000000031 /* KefSleepSyncApp.swift in Sources */,
+				A00000000000000000000032 /* DomainModels.swift in Sources */,
+				A00000000000000000000033 /* NSDKValue.swift in Sources */,
+				A00000000000000000000034 /* SpeakerDiscoveryService.swift in Sources */,
+				A00000000000000000000035 /* KefAPIClient.swift in Sources */,
+				A0000000000000000000003D /* KefRequestSecurity.swift in Sources */,
+				A00000000000000000000036 /* LoginItemService.swift in Sources */,
+				A00000000000000000000037 /* AppModel.swift in Sources */,
+				A00000000000000000000038 /* AppLogger.swift in Sources */,
+				A00000000000000000000039 /* MenuBarContentView.swift in Sources */,
+				A0000000000000000000003A /* SettingsView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A00000000000000000000043 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A0000000000000000000003E /* KefRequestSecurityTests.swift in Sources */,
+				A0000000000000000000003B /* NSDKValueTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A00000000000000000000071 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A00000000000000000000050 /* KefSleepSync */;
+			targetProxy = A00000000000000000000070 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		A00000000000000000000060 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				ENABLE_TESTABILITY = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = KefSleepSync;
+				INFOPLIST_KEY_LSUIElement = YES;
+				"INFOPLIST_KEY_NSBonjourServices[0]" = "_kef-info._tcp.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "KefSleepSync uses the local network to discover and control your KEF speaker.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tristan.kef.KefSleepSync;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A00000000000000000000061 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = KefSleepSync;
+				INFOPLIST_KEY_LSUIElement = YES;
+				"INFOPLIST_KEY_NSBonjourServices[0]" = "_kef-info._tcp.";
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "KefSleepSync uses the local network to discover and control your KEF speaker.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tristan.kef.KefSleepSync;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		A00000000000000000000062 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/../Frameworks",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tristan.kef.KefSleepSyncTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KefSleepSync.app/Contents/MacOS/KefSleepSync";
+				TEST_TARGET_NAME = KefSleepSync;
+			};
+			name = Debug;
+		};
+		A00000000000000000000063 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_REQUIRED = NO;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@loader_path/../Frameworks",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.tristan.kef.KefSleepSyncTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/KefSleepSync.app/Contents/MacOS/KefSleepSync";
+				TEST_TARGET_NAME = KefSleepSync;
+			};
+			name = Release;
+		};
+		A00000000000000000000064 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		A00000000000000000000065 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		A00000000000000000000066 /* Build configuration list for PBXNativeTarget "KefSleepSync" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A00000000000000000000060 /* Debug */,
+				A00000000000000000000061 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A00000000000000000000067 /* Build configuration list for PBXNativeTarget "KefSleepSyncTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A00000000000000000000062 /* Debug */,
+				A00000000000000000000063 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A00000000000000000000068 /* Build configuration list for PBXProject "KefSleepSync" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A00000000000000000000064 /* Debug */,
+				A00000000000000000000065 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = A00000000000000000000001 /* Project object */;
+}

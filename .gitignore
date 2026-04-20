@@ -1,0 +1,9 @@
+.DS_Store
+.build/
+dist/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+.codex/
+*.xcresult
+.tmp-*.png
