@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: macos-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Run macOS tests
+        run: |
+          xcodebuild test \
+            -project KefSleepSync.xcodeproj \
+            -scheme KefSleepSync \
+            -configuration Debug \
+            -destination 'platform=macOS'

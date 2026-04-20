@@ -1,5 +1,10 @@
 # KefSleepSync
 
+[![CI](https://github.com/tkelkermans/KefSleepSync/actions/workflows/ci.yml/badge.svg)](https://github.com/tkelkermans/KefSleepSync/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/tkelkermans/KefSleepSync)](https://github.com/tkelkermans/KefSleepSync/releases)
+[![macOS 14+](https://img.shields.io/badge/macOS-14%2B-black?logo=apple)](https://support.apple.com/macos)
+[![License: 0BSD](https://img.shields.io/github/license/tkelkermans/KefSleepSync)](./LICENSE)
+
 KefSleepSync is a native macOS menu bar app for KEF LS50 Wireless II speakers. It keeps the speaker aligned with the Mac's real-world desktop state, especially the case where the Mac is locked and the display turns off even though the whole machine may not enter full system sleep.
 
 The app uses only Apple frameworks:
@@ -12,6 +17,16 @@ The app uses only Apple frameworks:
 - `IOKit`
 
 No third-party frameworks are required.
+
+## Screenshots
+
+### Settings
+
+![KefSleepSync Settings](./docs/images/settings-preview.png)
+
+### Menu bar
+
+![KefSleepSync menu bar popover](./docs/images/menu-preview.png)
 
 ## Why this exists
 
@@ -143,6 +158,7 @@ Because it is a menu bar app, you should look for the speaker icon in the macOS 
 - The app uses unified logging through `OSLog`.
 - The main runtime coordinator lives in [Stores/AppModel.swift](./Stores/AppModel.swift).
 - Discovery is based on Bonjour resolution, not hardcoded speaker IPs.
+- README screenshots can be regenerated with `./script/generate_readme_screenshots.sh`.
 - The repository ignores local build products, xcresult bundles, Codex workspace config, and scratch icon exports by default.
 
 ## License

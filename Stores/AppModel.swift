@@ -249,6 +249,33 @@ final class AppModel: ObservableObject {
         bindDiscovery()
     }
 
+    static func makeReadmeDemoModel() -> AppModel {
+        let model = AppModel()
+        let speaker = DiscoveredSpeaker(
+            id: "demo-ls50w2",
+            name: "Living Room",
+            modelName: "LS50 Wireless II",
+            serialNumber: "DEMO-0001",
+            host: "speaker-demo.local",
+            port: 80,
+            serviceName: "Living Room",
+            lastSeenAt: Date()
+        )
+
+        model.speakers = [speaker]
+        model.selectedSpeaker = speaker
+        model.selectedIdentity = speaker.identity
+        model.automationState = AutomationState(
+            isEnabled: true,
+            originalStandbyMode: .standby20Minutes,
+            lastSyncDescription: "Speaker powered on and switched to Optical after display wake.",
+            lastSyncAt: Date(timeIntervalSince1970: 1_713_600_000)
+        )
+        model.launchAtLoginEnabled = true
+        model.loginItemStatusMessage = "Enabled"
+        return model
+    }
+
     deinit {
         unregisterPowerObservers()
         powerEventMonitor.stop()
