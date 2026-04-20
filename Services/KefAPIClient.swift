@@ -4,6 +4,7 @@ actor KefAPIClient {
     enum APIPath {
         static let getData = "/api/getData"
         static let setData = "/api/setData"
+        static let playerVolume = "player:volume"
         static let speakerStatus = "settings:/kef/host/speakerStatus"
         static let physicalSource = "settings:/kef/play/physicalSource"
         static let standbyMode = "settings:/kef/host/standbyMode"
@@ -47,8 +48,24 @@ actor KefAPIClient {
         self.injectedSession = session
     }
 
+    nonisolated static func clampVolume(_ volume: Int) -> Int {
+        min(100, max(0, volume))
+    }
+
     func readSpeakerStatusRaw(from speaker: DiscoveredSpeaker) async throws -> String {
         try await readRawStringValue(from: speaker, path: APIPath.speakerStatus)
+    }
+
+    func readVolume(from speaker: DiscoveredSpeaker) async throws -> Int {
+        let value = try await readValue(from: speaker, path: APIPath.playerVolume)
+        guard case let .int(rawValue) = value else {
+            throw KefAPIClientError.unexpectedValue(path: APIPath.playerVolume)
+        }
+        return Self.clampVolume(rawValue)
+    }
+
+    func setVolume(_ volume: Int, on speaker: DiscoveredSpeaker) async throws {
+        try await writeValue(.int(Self.clampVolume(volume)), to: APIPath.playerVolume, on: speaker)
     }
 
     func readStandbyMode(from speaker: DiscoveredSpeaker) async throws -> StandbyModeValue {

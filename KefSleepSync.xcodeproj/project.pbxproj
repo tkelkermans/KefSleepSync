@@ -23,6 +23,11 @@
 		A0000000000000000000003D /* KefRequestSecurity.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0000000000000000000001F /* KefRequestSecurity.swift */; };
 		A0000000000000000000003E /* KefRequestSecurityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000020 /* KefRequestSecurityTests.swift */; };
 		A0000000000000000000003F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000021 /* Assets.xcassets */; };
+		A00000000000000000000080 /* MediaKeyMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000083 /* MediaKeyMonitor.swift */; };
+		A00000000000000000000081 /* KeyboardVolumeController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000084 /* KeyboardVolumeController.swift */; };
+		A00000000000000000000082 /* MediaKeyMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000085 /* MediaKeyMonitorTests.swift */; };
+		A00000000000000000000086 /* SystemAudioOutputMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000087 /* SystemAudioOutputMonitor.swift */; };
+		A00000000000000000000088 /* SystemAudioOutputRouteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000089 /* SystemAudioOutputRouteTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,6 +59,11 @@
 		A0000000000000000000001F /* KefRequestSecurity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KefRequestSecurity.swift; sourceTree = "<group>"; };
 		A00000000000000000000020 /* KefRequestSecurityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KefRequestSecurityTests.swift; sourceTree = "<group>"; };
 		A00000000000000000000021 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		A00000000000000000000083 /* MediaKeyMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaKeyMonitor.swift; sourceTree = "<group>"; };
+		A00000000000000000000084 /* KeyboardVolumeController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardVolumeController.swift; sourceTree = "<group>"; };
+		A00000000000000000000085 /* MediaKeyMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaKeyMonitorTests.swift; sourceTree = "<group>"; };
+		A00000000000000000000087 /* SystemAudioOutputMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemAudioOutputMonitor.swift; sourceTree = "<group>"; };
+		A00000000000000000000089 /* SystemAudioOutputRouteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemAudioOutputRouteTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -122,6 +132,9 @@
 			children = (
 				A00000000000000000000014 /* SpeakerDiscoveryService.swift */,
 				A00000000000000000000015 /* KefAPIClient.swift */,
+				A00000000000000000000083 /* MediaKeyMonitor.swift */,
+				A00000000000000000000084 /* KeyboardVolumeController.swift */,
+				A00000000000000000000087 /* SystemAudioOutputMonitor.swift */,
 				A0000000000000000000001F /* KefRequestSecurity.swift */,
 				A00000000000000000000016 /* LoginItemService.swift */,
 			);
@@ -157,6 +170,8 @@
 			isa = PBXGroup;
 			children = (
 				A0000000000000000000001B /* NSDKValueTests.swift */,
+				A00000000000000000000085 /* MediaKeyMonitorTests.swift */,
+				A00000000000000000000089 /* SystemAudioOutputRouteTests.swift */,
 				A00000000000000000000020 /* KefRequestSecurityTests.swift */,
 			);
 			path = Tests/KefSleepSyncTests;
@@ -265,6 +280,9 @@
 				A00000000000000000000033 /* NSDKValue.swift in Sources */,
 				A00000000000000000000034 /* SpeakerDiscoveryService.swift in Sources */,
 				A00000000000000000000035 /* KefAPIClient.swift in Sources */,
+				A00000000000000000000080 /* MediaKeyMonitor.swift in Sources */,
+				A00000000000000000000081 /* KeyboardVolumeController.swift in Sources */,
+				A00000000000000000000086 /* SystemAudioOutputMonitor.swift in Sources */,
 				A0000000000000000000003D /* KefRequestSecurity.swift in Sources */,
 				A00000000000000000000036 /* LoginItemService.swift in Sources */,
 				A00000000000000000000037 /* AppModel.swift in Sources */,
@@ -278,6 +296,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A00000000000000000000082 /* MediaKeyMonitorTests.swift in Sources */,
+				A00000000000000000000088 /* SystemAudioOutputRouteTests.swift in Sources */,
 				A0000000000000000000003E /* KefRequestSecurityTests.swift in Sources */,
 				A0000000000000000000003B /* NSDKValueTests.swift in Sources */,
 			);
@@ -300,7 +320,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGNING_REQUIRED = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEFINES_MODULE = YES;
 				ENABLE_TESTABILITY = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -313,7 +333,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.2.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tristan.kef.KefSleepSync;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -330,7 +350,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGNING_REQUIRED = NO;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEFINES_MODULE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = KefSleepSync;
@@ -342,7 +362,7 @@
 					"@executable_path/../Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 14.0;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 0.2.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.tristan.kef.KefSleepSync;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_COMPILATION_MODE = wholemodule;

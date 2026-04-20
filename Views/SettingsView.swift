@@ -55,6 +55,36 @@ struct SettingsView: View {
                 }
             }
 
+            Section("Keyboard Volume") {
+                Toggle(
+                    "Use Mac volume keys for KEF",
+                    isOn: Binding(
+                        get: { model.keyboardVolumeControlState.isEnabled },
+                        set: { model.setKeyboardVolumeControlEnabled($0) }
+                    )
+                )
+                .disabled(model.selectedSpeaker == nil)
+
+                LabeledContent("Step size", value: model.keyboardVolumeStepDescription)
+                LabeledContent("Current Mac output", value: model.currentMacOutputRouteDescription)
+
+                Text(model.keyboardVolumeStatusMessage)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if model.shouldShowKeyboardPermissionButton {
+                    Button("Request Input Monitoring Permission") {
+                        model.requestKeyboardVolumePermission()
+                    }
+                }
+
+                Text("This feature only takes over the Mac volume keys while the selected KEF speaker is on Optical. On other sources, the keys continue to pass through to macOS.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
             Section("Launch") {
                 Toggle(
                     "Start at login",

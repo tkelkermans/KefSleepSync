@@ -1,4 +1,5 @@
 import Foundation
+import CoreAudio
 
 struct DiscoveredSpeaker: Identifiable, Equatable, Codable {
     let id: String
@@ -118,5 +119,77 @@ struct AutomationState: Codable, Equatable {
         }
 
         return "\(lastSyncDescription) (\(lastSyncAt.formatted(date: .abbreviated, time: .shortened)))"
+    }
+}
+
+struct KeyboardVolumeControlState: Codable, Equatable {
+    static let defaultStepSize = 4
+
+    var isEnabled: Bool = false
+    var stepSize: Int = Self.defaultStepSize
+    var preferredMacOutputRoute: PreferredMacOutputRoute?
+}
+
+struct PreferredMacOutputRoute: Codable, Equatable {
+    let deviceName: String
+    let manufacturer: String?
+    let dataSourceName: String?
+
+    var displayName: String {
+        guard let dataSourceName,
+              !dataSourceName.isEmpty,
+              dataSourceName.caseInsensitiveCompare(deviceName) != .orderedSame else {
+            return deviceName
+        }
+
+        return "\(deviceName) (\(dataSourceName))"
+    }
+}
+
+struct SystemAudioOutputRoute: Equatable {
+    let deviceID: AudioDeviceID
+    let deviceName: String
+    let manufacturer: String?
+    let dataSourceName: String?
+
+    var preferredRoute: PreferredMacOutputRoute {
+        PreferredMacOutputRoute(
+            deviceName: deviceName,
+            manufacturer: manufacturer,
+            dataSourceName: dataSourceName
+        )
+    }
+
+    var displayName: String {
+        preferredRoute.displayName
+    }
+
+    var looksLikeOptical: Bool {
+        let terms = [deviceName, manufacturer, dataSourceName]
+            .compactMap { $0?.lowercased() }
+            .joined(separator: " ")
+
+        return terms.contains("spdif")
+            || terms.contains("optical")
+            || terms.contains("digital out")
+            || terms.contains("digital output")
+            || terms.contains("toslink")
+    }
+
+    func matches(_ preferredRoute: PreferredMacOutputRoute) -> Bool {
+        guard deviceName == preferredRoute.deviceName else {
+            return false
+        }
+
+        if let preferredManufacturer = preferredRoute.manufacturer,
+           manufacturer != preferredManufacturer {
+            return false
+        }
+
+        if let preferredDataSourceName = preferredRoute.dataSourceName {
+            return dataSourceName == preferredDataSourceName
+        }
+
+        return true
     }
 }

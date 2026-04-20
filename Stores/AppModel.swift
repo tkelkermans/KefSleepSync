@@ -160,6 +160,10 @@ final class AppModel: ObservableObject {
     @Published private(set) var speakers: [DiscoveredSpeaker] = []
     @Published private(set) var selectedSpeaker: DiscoveredSpeaker?
     @Published private(set) var automationState: AutomationState
+    @Published private(set) var keyboardVolumeControlState: KeyboardVolumeControlState
+    @Published private(set) var keyboardVolumePermissionGranted: Bool
+    @Published private(set) var keyboardVolumeStatusMessage: String
+    @Published private(set) var currentMacOutputRouteDescription: String
     @Published private(set) var isWorking = false
     @Published var launchAtLoginEnabled: Bool
     @Published private(set) var loginItemStatusMessage: String
@@ -167,11 +171,14 @@ final class AppModel: ObservableObject {
     private enum DefaultsKey {
         static let selectedSpeakerIdentity = "selectedSpeakerIdentity"
         static let automationState = "automationState"
+        static let keyboardVolumeControlState = "keyboardVolumeControlState"
         static let launchAtLoginEnabled = "launchAtLoginEnabled"
     }
 
     private enum Timing {
         static let selectionTimeout: TimeInterval = 2
+        static let keyboardSourceCacheLifetime: TimeInterval = 5
+        static let keyboardSourcePollingInterval: TimeInterval = 2
         static let rediscoveryTimeout: TimeInterval = 20
         static let duplicateEventWindow: TimeInterval = 10
         static let shortRetryDelay: TimeInterval = 0.5
@@ -215,11 +222,15 @@ final class AppModel: ObservableObject {
     private let defaults: UserDefaults
     private let discoveryService: SpeakerDiscoveryService
     private let apiClient: KefAPIClient
+    private let mediaKeyMonitor = MediaKeyMonitor()
+    private let keyboardVolumeController = KeyboardVolumeController()
     private let loginItemService: LoginItemService
     private let powerEventMonitor = PowerEventMonitor()
+    private let systemAudioOutputMonitor = SystemAudioOutputMonitor()
     private var selectedIdentity: SelectedSpeakerIdentity?
     private var cancellables: Set<AnyCancellable> = []
     private var hasStarted = false
+    private var applicationDidBecomeActiveObserver: NSObjectProtocol?
     private var willSleepObserver: NSObjectProtocol?
     private var didWakeObserver: NSObjectProtocol?
     private var screensDidSleepObserver: NSObjectProtocol?
@@ -228,8 +239,14 @@ final class AppModel: ObservableObject {
     private var sessionDidBecomeActiveObserver: NSObjectProtocol?
     private var screenLockObserver: NSObjectProtocol?
     private var screenUnlockObserver: NSObjectProtocol?
+    private var keyboardSourcePollingCancellable: AnyCancellable?
+    private var currentMacOutputRoute: SystemAudioOutputRoute?
+    private var lastKeyboardSourceValidationAt: Date?
+    private var lastKeyboardSourceSpeakerID: String?
+    private var lastValidatedKeyboardSource: PhysicalSourceValue?
     private var lastSleepLikeEventAt: Date?
     private var lastWakeLikeEventAt: Date?
+    private var keyboardVolumeSpeakerUnavailable = false
 
     private init(
         defaults: UserDefaults = .standard,
@@ -242,11 +259,19 @@ final class AppModel: ObservableObject {
         self.apiClient = apiClient
         self.loginItemService = loginItemService
         self.automationState = Self.loadAutomationState(from: defaults)
+        self.keyboardVolumeControlState = Self.loadKeyboardVolumeControlState(from: defaults)
+        self.keyboardVolumePermissionGranted = false
+        self.keyboardVolumeStatusMessage = "Keyboard volume control is off."
+        self.currentMacOutputRouteDescription = "Unknown"
         self.launchAtLoginEnabled = defaults.object(forKey: DefaultsKey.launchAtLoginEnabled) as? Bool ?? true
         self.loginItemStatusMessage = loginItemService.statusDescription
         self.selectedIdentity = Self.loadSelectedIdentity(from: defaults)
 
         bindDiscovery()
+        keyboardVolumePermissionGranted = mediaKeyMonitor.hasPermission()
+        currentMacOutputRoute = systemAudioOutputMonitor.currentRoute()
+        currentMacOutputRouteDescription = currentMacOutputRoute?.displayName ?? "Unknown"
+        updateKeyboardVolumeStatusForCurrentConditions()
     }
 
     static func makeReadmeDemoModel() -> AppModel {
@@ -271,13 +296,31 @@ final class AppModel: ObservableObject {
             lastSyncDescription: "Speaker powered on and switched to Optical after display wake.",
             lastSyncAt: Date(timeIntervalSince1970: 1_713_600_000)
         )
+        model.keyboardVolumeControlState = KeyboardVolumeControlState(isEnabled: true, stepSize: 4)
+        model.keyboardVolumePermissionGranted = true
+        model.currentMacOutputRoute = SystemAudioOutputRoute(
+            deviceID: 1,
+            deviceName: "SPDIF Output",
+            manufacturer: "CMEDIA",
+            dataSourceName: nil
+        )
+        model.currentMacOutputRouteDescription = "SPDIF Output"
+        model.keyboardVolumeControlState.preferredMacOutputRoute = model.currentMacOutputRoute?.preferredRoute
+        model.lastKeyboardSourceSpeakerID = speaker.id
+        model.lastValidatedKeyboardSource = .optical
+        model.lastKeyboardSourceValidationAt = Date()
+        model.keyboardVolumeStatusMessage = "Ready. The Mac volume keys will control Living Room while Optical is active."
         model.launchAtLoginEnabled = true
         model.loginItemStatusMessage = "Enabled"
         return model
     }
 
     deinit {
+        unregisterApplicationObservers()
         unregisterPowerObservers()
+        keyboardSourcePollingCancellable?.cancel()
+        mediaKeyMonitor.stop()
+        systemAudioOutputMonitor.stop()
         powerEventMonitor.stop()
     }
 
@@ -295,9 +338,24 @@ final class AppModel: ObservableObject {
         selectedSpeaker?.name ?? "No speaker selected"
     }
 
+    var shouldShowKeyboardPermissionButton: Bool {
+        !keyboardVolumePermissionGranted
+    }
+
+    var keyboardVolumeStepDescription: String {
+        "\(keyboardVolumeControlState.stepSize) points per key press"
+    }
+
     func start() {
         guard !hasStarted else { return }
         hasStarted = true
+
+        mediaKeyMonitor.onMediaKey = { [weak self] action in
+            self?.handleMediaKey(action) ?? false
+        }
+        systemAudioOutputMonitor.onRouteChange = { [weak self] route in
+            self?.handleMacAudioOutputRouteChange(route)
+        }
 
         powerEventMonitor.onWillSleep = { [weak self] allowSleep in
             guard let self else {
@@ -315,9 +373,12 @@ final class AppModel: ObservableObject {
         }
         powerEventMonitor.start()
 
+        registerApplicationObservers()
         registerPowerObservers()
 
+        systemAudioOutputMonitor.start()
         discoveryService.start()
+        syncKeyboardVolumeMonitorState(forceSourceRefresh: true)
 
         Task {
             await syncLaunchAtLoginPreference()
@@ -329,6 +390,8 @@ final class AppModel: ObservableObject {
             selectedIdentity = nil
             selectedSpeaker = nil
             saveSelectedIdentity()
+            invalidateKeyboardVolumeSourceCache()
+            updateKeyboardVolumeStatusForCurrentConditions()
             return
         }
 
@@ -336,6 +399,42 @@ final class AppModel: ObservableObject {
         selectedSpeaker = speaker
         selectedIdentity = speaker.identity
         saveSelectedIdentity()
+        invalidateKeyboardVolumeSourceCache()
+        updateKeyboardVolumeStatusForCurrentConditions()
+
+        if keyboardVolumeControlState.isEnabled {
+            Task {
+                await refreshKeyboardVolumeSource(force: true)
+            }
+        }
+    }
+
+    func setKeyboardVolumeControlEnabled(_ enabled: Bool) {
+        guard enabled != keyboardVolumeControlState.isEnabled else { return }
+
+        keyboardVolumeControlState.isEnabled = enabled
+        if enabled {
+            learnPreferredMacOutputRouteIfNeeded()
+        }
+        saveKeyboardVolumeControlState()
+        syncKeyboardVolumeMonitorState(forceSourceRefresh: enabled)
+    }
+
+    func requestKeyboardVolumePermission() {
+        let granted = mediaKeyMonitor.requestPermission()
+        keyboardVolumePermissionGranted = granted
+
+        if granted {
+            AppLogger.keyboard.info("Input Monitoring permission was granted.")
+        } else {
+            AppLogger.keyboard.notice("Input Monitoring permission is still missing after the request attempt.")
+        }
+
+        syncKeyboardVolumeMonitorState(forceSourceRefresh: granted)
+
+        if !granted && keyboardVolumeControlState.isEnabled {
+            keyboardVolumeStatusMessage = "Enable KefSleepSync in System Settings > Privacy & Security > Input Monitoring to capture the Mac volume keys."
+        }
     }
 
     func setLaunchAtLoginEnabled(_ enabled: Bool) {
@@ -414,6 +513,7 @@ final class AppModel: ObservableObject {
     }
 
     private func handleDiscoveredSpeakers(_ speakers: [DiscoveredSpeaker]) {
+        let previousSpeakerID = selectedSpeaker?.id
         self.speakers = speakers
 
         if let selectedIdentity,
@@ -439,6 +539,18 @@ final class AppModel: ObservableObject {
         } else if speakers.isEmpty {
             selectedSpeaker = nil
         }
+
+        let currentSpeakerID = selectedSpeaker?.id
+        if previousSpeakerID != currentSpeakerID {
+            invalidateKeyboardVolumeSourceCache()
+            updateKeyboardVolumeStatusForCurrentConditions()
+
+            if keyboardVolumeControlState.isEnabled {
+                Task {
+                    await refreshKeyboardVolumeSource(force: true)
+                }
+            }
+        }
     }
 
     private func runExclusiveOperation(_ operation: @escaping () async -> Void) {
@@ -447,6 +559,34 @@ final class AppModel: ObservableObject {
             await operation()
             await self.endExclusiveOperation()
         }
+    }
+
+    private func registerApplicationObservers() {
+        applicationDidBecomeActiveObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.didBecomeActiveNotification,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            guard let self else { return }
+            self.syncKeyboardVolumeMonitorState(forceSourceRefresh: true)
+        }
+    }
+
+    private func unregisterApplicationObservers() {
+        guard let applicationDidBecomeActiveObserver else { return }
+        NotificationCenter.default.removeObserver(applicationDidBecomeActiveObserver)
+        self.applicationDidBecomeActiveObserver = nil
+    }
+
+    private func handleMacAudioOutputRouteChange(_ route: SystemAudioOutputRoute?) {
+        currentMacOutputRoute = route
+        currentMacOutputRouteDescription = route?.displayName ?? "Unknown"
+
+        if keyboardVolumeControlState.isEnabled {
+            learnPreferredMacOutputRouteIfNeeded()
+        }
+
+        updateKeyboardVolumeStatusForCurrentConditions()
     }
 
     private func registerPowerObservers() {
@@ -647,6 +787,7 @@ final class AppModel: ObservableObject {
         if let lastError {
             await recordFailure("Standby sync failed: \(describe(lastError)).")
         } else {
+            await cacheKeyboardVolumeSource(.standby, speakerID: speaker.id)
             await recordSuccess("Speaker switched to standby for \(trigger.lowercased()).")
         }
     }
@@ -701,6 +842,7 @@ final class AppModel: ObservableObject {
         if let verificationError {
             await recordFailure("The speaker woke up, but Optical could not be confirmed: \(describe(verificationError)).")
         } else {
+            await cacheKeyboardVolumeSource(.optical, speakerID: responsiveSpeaker.id)
             await recordSuccess("Speaker powered on and switched to Optical after \(trigger.lowercased()).")
         }
     }
@@ -732,6 +874,165 @@ final class AppModel: ObservableObject {
         } catch {
             await recordFailure("Quit was cancelled because restoring \(originalMode.displayName) failed: \(describe(error)).")
             return false
+        }
+    }
+
+    private func handleMediaKey(_ action: MediaKeyAction) -> Bool {
+        guard keyboardVolumeControlState.isEnabled else {
+            return false
+        }
+
+        guard keyboardVolumePermissionGranted else {
+            updateKeyboardVolumeStatusForCurrentConditions()
+            return false
+        }
+
+        guard let speaker = selectedSpeaker else {
+            updateKeyboardVolumeStatusForCurrentConditions()
+            return false
+        }
+
+        guard shouldCaptureKeyboardVolume(for: currentMacOutputRoute) else {
+            updateKeyboardVolumeStatusForCurrentConditions()
+            return false
+        }
+
+        guard !keyboardVolumeSpeakerUnavailable,
+              isKeyboardSourceCacheFresh(for: speaker),
+              lastValidatedKeyboardSource == .optical else {
+            Task { [weak self] in
+                await self?.refreshKeyboardVolumeSource(force: true)
+            }
+            return false
+        }
+
+        let delta = action == .volumeUp ? keyboardVolumeControlState.stepSize : -keyboardVolumeControlState.stepSize
+        Task { [weak self] in
+            await self?.applyKeyboardVolumeAdjustment(action: action, delta: delta, fallbackSpeaker: speaker)
+        }
+
+        return true
+    }
+
+    private func syncKeyboardVolumeMonitorState(forceSourceRefresh: Bool) {
+        keyboardVolumePermissionGranted = mediaKeyMonitor.hasPermission()
+
+        let shouldRunMonitor = keyboardVolumeControlState.isEnabled && keyboardVolumePermissionGranted
+        if shouldRunMonitor {
+            mediaKeyMonitor.start()
+            startKeyboardSourcePolling()
+        } else {
+            mediaKeyMonitor.stop()
+            stopKeyboardSourcePolling()
+            invalidateKeyboardVolumeSourceCache()
+        }
+
+        updateKeyboardVolumeStatusForCurrentConditions()
+
+        if shouldRunMonitor && forceSourceRefresh {
+            Task { [weak self] in
+                await self?.refreshKeyboardVolumeSource(force: true)
+            }
+        }
+    }
+
+    private func startKeyboardSourcePolling() {
+        guard keyboardSourcePollingCancellable == nil else { return }
+
+        keyboardSourcePollingCancellable = Timer.publish(
+            every: Timing.keyboardSourcePollingInterval,
+            on: .main,
+            in: .common
+        )
+        .autoconnect()
+        .sink { [weak self] _ in
+            Task { [weak self] in
+                await self?.refreshKeyboardVolumeSource(force: false)
+            }
+        }
+    }
+
+    private func stopKeyboardSourcePolling() {
+        keyboardSourcePollingCancellable?.cancel()
+        keyboardSourcePollingCancellable = nil
+    }
+
+    private func refreshKeyboardVolumeSource(force: Bool) async {
+        let isEnabled = await MainActor.run {
+            self.keyboardVolumeControlState.isEnabled && self.keyboardVolumePermissionGranted
+        }
+        guard isEnabled else { return }
+
+        guard let speaker = await currentSpeaker() else {
+            await MainActor.run {
+                self.invalidateKeyboardVolumeSourceCache()
+                self.updateKeyboardVolumeStatusForCurrentConditions()
+            }
+            return
+        }
+
+        let shouldRefresh = await MainActor.run {
+            force || !self.isKeyboardSourceCacheFresh(for: speaker)
+        }
+        guard shouldRefresh else { return }
+
+        do {
+            let source = try await keyboardVolumeController.readPhysicalSource(on: speaker, using: apiClient)
+            await MainActor.run {
+                self.keyboardVolumeSpeakerUnavailable = false
+                self.lastKeyboardSourceSpeakerID = speaker.id
+                self.lastValidatedKeyboardSource = source
+                self.lastKeyboardSourceValidationAt = Date()
+                self.updateKeyboardVolumeStatusForCurrentConditions()
+            }
+        } catch {
+            AppLogger.keyboard.debug("Keyboard volume source refresh failed: \(error.localizedDescription, privacy: .public)")
+            await MainActor.run {
+                self.keyboardVolumeSpeakerUnavailable = true
+                self.lastKeyboardSourceSpeakerID = speaker.id
+                self.lastValidatedKeyboardSource = nil
+                self.lastKeyboardSourceValidationAt = nil
+                self.updateKeyboardVolumeStatusForCurrentConditions()
+            }
+        }
+    }
+
+    private func applyKeyboardVolumeAdjustment(action: MediaKeyAction, delta: Int, fallbackSpeaker: DiscoveredSpeaker) async {
+        let targetSpeaker = await currentSpeaker() ?? fallbackSpeaker
+
+        do {
+            let result = try await keyboardVolumeController.adjustVolume(
+                on: targetSpeaker,
+                delta: delta,
+                using: apiClient
+            )
+
+            await MainActor.run {
+                self.keyboardVolumeSpeakerUnavailable = false
+                self.lastKeyboardSourceSpeakerID = targetSpeaker.id
+                self.lastKeyboardSourceValidationAt = Date()
+
+                switch result {
+                case let .adjusted(volume):
+                    self.lastValidatedKeyboardSource = .optical
+                    self.keyboardVolumeStatusMessage = "Set KEF volume to \(volume) via \(action.displayName.lowercased())."
+                case let .unchanged(volume):
+                    self.lastValidatedKeyboardSource = .optical
+                    self.keyboardVolumeStatusMessage = "KEF volume is already \(volume)."
+                case let .unavailableSource(source):
+                    self.lastValidatedKeyboardSource = source
+                    self.keyboardVolumeStatusMessage = "Current KEF source is \(source.displayName). Volume keys currently pass through to macOS."
+                }
+            }
+        } catch {
+            AppLogger.keyboard.error("Keyboard volume adjustment failed: \(error.localizedDescription, privacy: .public)")
+            await MainActor.run {
+                self.keyboardVolumeSpeakerUnavailable = true
+                self.lastKeyboardSourceSpeakerID = targetSpeaker.id
+                self.lastValidatedKeyboardSource = nil
+                self.lastKeyboardSourceValidationAt = nil
+                self.updateKeyboardVolumeStatusForCurrentConditions()
+            }
         }
     }
 
@@ -917,6 +1218,106 @@ final class AppModel: ObservableObject {
         saveAutomationState()
     }
 
+    private func isKeyboardSourceCacheFresh(for speaker: DiscoveredSpeaker) -> Bool {
+        guard !keyboardVolumeSpeakerUnavailable,
+              lastKeyboardSourceSpeakerID == speaker.id,
+              let lastKeyboardSourceValidationAt else {
+            return false
+        }
+
+        return Date().timeIntervalSince(lastKeyboardSourceValidationAt) < Timing.keyboardSourceCacheLifetime
+    }
+
+    private func invalidateKeyboardVolumeSourceCache() {
+        keyboardVolumeSpeakerUnavailable = false
+        lastKeyboardSourceSpeakerID = selectedSpeaker?.id
+        lastValidatedKeyboardSource = nil
+        lastKeyboardSourceValidationAt = nil
+    }
+
+    private func cacheKeyboardVolumeSource(_ source: PhysicalSourceValue, speakerID: String) async {
+        await MainActor.run {
+            self.keyboardVolumeSpeakerUnavailable = false
+            self.lastKeyboardSourceSpeakerID = speakerID
+            self.lastValidatedKeyboardSource = source
+            self.lastKeyboardSourceValidationAt = Date()
+            self.updateKeyboardVolumeStatusForCurrentConditions()
+        }
+    }
+
+    private func learnPreferredMacOutputRouteIfNeeded() {
+        guard keyboardVolumeControlState.preferredMacOutputRoute == nil,
+              let currentMacOutputRoute,
+              currentMacOutputRoute.looksLikeOptical else {
+            return
+        }
+
+        keyboardVolumeControlState.preferredMacOutputRoute = currentMacOutputRoute.preferredRoute
+        saveKeyboardVolumeControlState()
+    }
+
+    private func shouldCaptureKeyboardVolume(for route: SystemAudioOutputRoute?) -> Bool {
+        guard let preferredMacOutputRoute = keyboardVolumeControlState.preferredMacOutputRoute,
+              let route else {
+            return false
+        }
+
+        return route.matches(preferredMacOutputRoute)
+    }
+
+    private func updateKeyboardVolumeStatusForCurrentConditions() {
+        guard keyboardVolumeControlState.isEnabled else {
+            keyboardVolumeStatusMessage = "Keyboard volume control is off."
+            return
+        }
+
+        guard keyboardVolumePermissionGranted else {
+            keyboardVolumeStatusMessage = "Enable Input Monitoring for KefSleepSync to capture the Mac volume keys."
+            return
+        }
+
+        guard let selectedSpeaker else {
+            keyboardVolumeStatusMessage = "Select a KEF speaker to use keyboard volume control."
+            return
+        }
+
+        guard let currentMacOutputRoute else {
+            keyboardVolumeStatusMessage = "No active macOS output route was detected yet."
+            return
+        }
+
+        guard let preferredMacOutputRoute = keyboardVolumeControlState.preferredMacOutputRoute else {
+            if currentMacOutputRoute.looksLikeOptical {
+                keyboardVolumeStatusMessage = "Ready. Learned \(currentMacOutputRoute.displayName) as the Mac output route for KEF keyboard volume."
+            } else {
+                keyboardVolumeStatusMessage = "Current Mac output is \(currentMacOutputRoute.displayName). Switch macOS output to your optical device once so KefSleepSync can learn it."
+            }
+            return
+        }
+
+        guard currentMacOutputRoute.matches(preferredMacOutputRoute) else {
+            keyboardVolumeStatusMessage = "Current Mac output is \(currentMacOutputRoute.displayName). Volume keys currently pass through to macOS until \(preferredMacOutputRoute.displayName) is active."
+            return
+        }
+
+        if keyboardVolumeSpeakerUnavailable {
+            keyboardVolumeStatusMessage = "\(selectedSpeaker.name) is unavailable. Volume keys currently pass through to macOS."
+            return
+        }
+
+        guard isKeyboardSourceCacheFresh(for: selectedSpeaker),
+              let lastValidatedKeyboardSource else {
+            keyboardVolumeStatusMessage = "Checking whether \(selectedSpeaker.name) is on Optical..."
+            return
+        }
+
+        if lastValidatedKeyboardSource == .optical {
+            keyboardVolumeStatusMessage = "Ready. The Mac volume keys will control \(selectedSpeaker.name) while \(preferredMacOutputRoute.displayName) and KEF Optical are active."
+        } else {
+            keyboardVolumeStatusMessage = "Current KEF source is \(lastValidatedKeyboardSource.displayName). Volume keys currently pass through to macOS."
+        }
+    }
+
     private func saveSelectedIdentity() {
         guard let selectedIdentity else {
             defaults.removeObject(forKey: DefaultsKey.selectedSpeakerIdentity)
@@ -934,6 +1335,12 @@ final class AppModel: ObservableObject {
         }
     }
 
+    private func saveKeyboardVolumeControlState() {
+        if let data = try? JSONEncoder().encode(keyboardVolumeControlState) {
+            defaults.set(data, forKey: DefaultsKey.keyboardVolumeControlState)
+        }
+    }
+
     private static func loadSelectedIdentity(from defaults: UserDefaults) -> SelectedSpeakerIdentity? {
         guard let data = defaults.data(forKey: DefaultsKey.selectedSpeakerIdentity) else {
             return nil
@@ -946,6 +1353,15 @@ final class AppModel: ObservableObject {
         guard let data = defaults.data(forKey: DefaultsKey.automationState),
               let state = try? JSONDecoder().decode(AutomationState.self, from: data) else {
             return AutomationState()
+        }
+
+        return state
+    }
+
+    private static func loadKeyboardVolumeControlState(from defaults: UserDefaults) -> KeyboardVolumeControlState {
+        guard let data = defaults.data(forKey: DefaultsKey.keyboardVolumeControlState),
+              let state = try? JSONDecoder().decode(KeyboardVolumeControlState.self, from: data) else {
+            return KeyboardVolumeControlState()
         }
 
         return state

@@ -24,6 +24,33 @@ struct MenuBarContentView: View {
             )
             .disabled(model.selectedSpeaker == nil || model.isWorking)
 
+            VStack(alignment: .leading, spacing: 8) {
+                Toggle(
+                    "Use keyboard volume on Optical",
+                    isOn: Binding(
+                        get: { model.keyboardVolumeControlState.isEnabled },
+                        set: { model.setKeyboardVolumeControlEnabled($0) }
+                    )
+                )
+                .disabled(model.selectedSpeaker == nil)
+
+                Text(model.keyboardVolumeStatusMessage)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text("Current Mac output: \(model.currentMacOutputRouteDescription)")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                if model.shouldShowKeyboardPermissionButton {
+                    Button("Request Input Monitoring") {
+                        model.requestKeyboardVolumePermission()
+                    }
+                }
+            }
+
             if model.isWorking {
                 HStack(spacing: 8) {
                     ProgressView()
@@ -73,7 +100,7 @@ struct MenuBarContentView: View {
             }
         }
         .padding(14)
-        .frame(width: 320)
+        .frame(width: 340)
     }
 }
 

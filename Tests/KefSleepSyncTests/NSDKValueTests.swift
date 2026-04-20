@@ -36,6 +36,13 @@ final class NSDKValueTests: XCTestCase {
         )
     }
 
+    func testPlayerVolumePayloadDecodes() throws {
+        let payload = #"{"type":"i32_","i32_":41}"#.data(using: .utf8)!
+        let value = try decoder.decode(NSDKValue.self, from: payload)
+
+        XCTAssertEqual(value, .int(41))
+    }
+
     func testSetDataRequestEncodesStringValue() throws {
         let request = NSDKSetDataRequest(
             path: "settings:/kef/play/physicalSource",
@@ -51,5 +58,28 @@ final class NSDKValueTests: XCTestCase {
         XCTAssertEqual(json?["role"] as? String, "value")
         XCTAssertEqual(value?["type"], "string_")
         XCTAssertEqual(value?["string_"], "optical")
+    }
+
+    func testSetDataRequestEncodesIntegerValue() throws {
+        let request = NSDKSetDataRequest(
+            path: "player:volume",
+            role: "value",
+            value: .int(63)
+        )
+
+        let data = try encoder.encode(request)
+        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let value = json?["value"] as? [String: Any]
+
+        XCTAssertEqual(json?["path"] as? String, "player:volume")
+        XCTAssertEqual(json?["role"] as? String, "value")
+        XCTAssertEqual(value?["type"] as? String, "i32_")
+        XCTAssertEqual(value?["i32_"] as? Int, 63)
+    }
+
+    func testClampVolumeConstrainsRange() {
+        XCTAssertEqual(KefAPIClient.clampVolume(-10), 0)
+        XCTAssertEqual(KefAPIClient.clampVolume(42), 42)
+        XCTAssertEqual(KefAPIClient.clampVolume(101), 100)
     }
 }
