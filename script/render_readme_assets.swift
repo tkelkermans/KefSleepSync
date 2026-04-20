@@ -3,6 +3,47 @@ import SwiftUI
 
 @main
 struct ReadmeAssetRenderer {
+    private struct KeyboardVolumePreviewCard: View {
+        @ObservedObject var model: AppModel
+
+        var body: some View {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("Keyboard Volume")
+                    .font(.headline)
+
+                Toggle(
+                    "Use Mac volume keys for KEF",
+                    isOn: .constant(model.keyboardVolumeControlState.isEnabled)
+                )
+                .disabled(true)
+
+                LabeledContent("Step size", value: model.keyboardVolumeStepDescription)
+                LabeledContent("Current Mac output", value: model.currentMacOutputRouteDescription)
+
+                Text(model.keyboardVolumeStatusMessage)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Text("The keys only override macOS while the selected KEF speaker is on Optical and the Mac is actively using the learned optical output route.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .padding(24)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+            .background(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(Color(nsColor: .controlBackgroundColor))
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(Color.black.opacity(0.06), lineWidth: 1)
+            )
+            .padding(18)
+        }
+    }
+
     private struct SnapshotSpec<Content: View> {
         let filename: String
         let size: CGSize
@@ -21,6 +62,7 @@ struct ReadmeAssetRenderer {
         try FileManager.default.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
 
         let model = AppModel.makeReadmeDemoModel()
+        let keyboardModel = AppModel.makeReadmeDemoModel()
 
         let snapshots = [
             SnapshotSpec(
@@ -47,6 +89,24 @@ struct ReadmeAssetRenderer {
                             Spacer(minLength: 0)
                         }
                         .frame(width: 320, height: 420)
+                    }
+                )
+            ),
+            SnapshotSpec(
+                filename: "keyboard-volume-preview.png",
+                size: CGSize(width: 560, height: 280),
+                view: AnyView(
+                    ZStack {
+                        LinearGradient(
+                            colors: [
+                                Color(nsColor: .windowBackgroundColor),
+                                Color(nsColor: .underPageBackgroundColor)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                        KeyboardVolumePreviewCard(model: keyboardModel)
+                            .frame(width: 560, height: 280)
                     }
                 )
             )

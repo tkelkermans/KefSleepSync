@@ -15,9 +15,12 @@ mkdir -p "$OUTPUT_DIR"
   "$ROOT_DIR/Models/NSDKValue.swift" \
   "$ROOT_DIR/Services/SpeakerDiscoveryService.swift" \
   "$ROOT_DIR/Services/KefAPIClient.swift" \
+  "$ROOT_DIR/Services/KeyboardVolumeController.swift" \
   "$ROOT_DIR/Services/KefRequestSecurity.swift" \
   "$ROOT_DIR/Services/LoginItemService.swift" \
+  "$ROOT_DIR/Services/MediaKeyMonitor.swift" \
   "$ROOT_DIR/Stores/AppModel.swift" \
+  "$ROOT_DIR/Services/SystemAudioOutputMonitor.swift" \
   "$ROOT_DIR/Support/AppLogger.swift" \
   "$ROOT_DIR/Views/MenuBarContentView.swift" \
   "$ROOT_DIR/Views/SettingsView.swift"

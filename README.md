@@ -30,6 +30,10 @@ No third-party frameworks are required.
 
 ![KefSleepSync menu bar popover](./docs/images/menu-preview.png)
 
+### Keyboard volume
+
+![KefSleepSync keyboard volume preview](./docs/images/keyboard-volume-preview.png)
+
 ## Why this exists
 
 KEF speakers can either stay awake and get warm, or rely on their own standby behavior, which does not always line up cleanly with how a Mac wakes, locks, sleeps, or hands audio back to Optical.
